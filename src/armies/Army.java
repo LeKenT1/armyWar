@@ -20,7 +20,7 @@ public class Army {
     }
 
     public void addObject(GameObject object) {
-        if (objects.size() < 2) { // Limit to 2 objects
+        if (objects.size() < 2) {
             objects.add(object);
         } else {
             System.out.println("You can only choose 2 objects.");

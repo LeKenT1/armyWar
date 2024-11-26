@@ -12,11 +12,11 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Entrez le nom du joueur 1 : ");
+        System.out.println("Player 1, enter your name : ");
         String name1 = scanner.nextLine();
         Player player1 = new Player(name1);
 
-        System.out.println("Entrez le nom du joueur 2 : ");
+        System.out.println("Player 2, enter your name : ");
         String name2 = scanner.nextLine();
         Player player2 = new Player(name2);
 
@@ -36,36 +36,36 @@ public class Main {
         Dragon dragon = new Dragon();
 
         System.out.printf("| %-6s | \033[31m%-8s\033[0m | %-4s | %-6s | %-6s | %-6s | \n",
-                "1", warrior.getName(), warrior.getCost(), warrior.getHp(), warrior.getAttack(), warrior.getDefense());
+                "1", warrior.getName(), warrior.getHp(), warrior.getAttack(), warrior.getDefense(), warrior.getCost());
 
         System.out.printf("| %-6s | \033[33m%-8s\033[0m | %-4s | %-6s | %-6s | %-6s | \n",
-                "2", archer.getName(), archer.getCost(), archer.getHp(), archer.getAttack(), archer.getDefense());
+                "2", archer.getName(), archer.getHp(), archer.getAttack(), archer.getDefense(), archer.getCost());
 
         System.out.printf("| %-6s | \033[34m%-8s\033[0m | %-4s | %-6s | %-6s | %-6s | \n",
-                "3", wizard.getName(), wizard.getCost(), wizard.getHp(), wizard.getAttack(), wizard.getDefense());
+                "3", wizard.getName(), wizard.getHp(), wizard.getAttack(), wizard.getDefense(), wizard.getCost());
 
         System.out.printf("| %-6s | \033[32m%-8s\033[0m | %-4s | %-6s | %-6s | %-6s | \n",
-                "4", troll.getName(), troll.getCost(), troll.getHp(), troll.getAttack(), troll.getDefense());
+                "4", troll.getName(), troll.getHp(), troll.getAttack(), troll.getDefense(), troll.getCost());
 
         System.out.printf("| %-6s | \033[35m%-8s\033[0m | %-4s | %-6s | %-6s | %-6s | \n",
-                "5", dragon.getName(), dragon.getCost(), dragon.getHp(), dragon.getAttack(), dragon.getDefense());
+                "5", dragon.getName(), dragon.getHp(), dragon.getAttack(), dragon.getDefense(), dragon.getCost());
 
         System.out.println("------------------------------------------------------");
 
         // Sélection des personnages pour Joueur 1
-        System.out.println(player1.getName() + ", choisissez vos personnages : ");
-        while (player1.getCredits() > 0) {
-            System.out.println("il vous reste " + player1.getCredits() + ", choisissez un personnage (1-4): ");
+        System.out.println(player1.getName() + ", choose your characters : ");
+        while (player1.getCredits() > 3) {
+            System.out.println("You have " + player1.getCredits() + " credits left, choose a character (1-5): ");
 
             int choice = -1;
-            while (choice < 1 || choice > 4) {
+            while (choice < 1 || choice > 5) {
                 try {
                     choice = scanner.nextInt();
-                    if (choice < 1 || choice > 4) {
-                        System.out.println("Choix invalide. Tapez un chiffre entre 1 et 4.");
+                    if (choice < 1 || choice > 5) {
+                        System.out.println("Invalid choice. Please enter a number between 1 and 5.");
                     }
                 } catch (InputMismatchException e) {
-                    System.out.println("Veuillez entrer un nombre.");
+                    System.out.println("Please enter a valid number.");
                     scanner.nextLine();
                 }
             }
@@ -83,16 +83,32 @@ public class Main {
                 case 4:
                     player1.chooseCharacter(new Troll());
                     break;
+                case 5:
+                    player1.chooseCharacter(new Dragon());
+                    break;
                 default:
                     break;
             }
         }
 
         // Sélection des personnages pour Joueur 2
-        System.out.println(player2.getName() + ", choisissez vos personnages (maximum 2 de chaque type) : ");
-        for (int i = 0; i < 2; i++) {
-            System.out.println("Choisissez un personnage (1-4): ");
-            int choice = scanner.nextInt();
+        System.out.println(player2.getName() + ", choose your characters : ");
+        while (player2.getCredits() > 3) {
+            System.out.println("You have " + player2.getCredits() + " credits left, choose a character (1-5): ");
+
+            int choice = -1;
+            while (choice < 1 || choice > 5) {
+                try {
+                    choice = scanner.nextInt();
+                    if (choice < 1 || choice > 5) {
+                        System.out.println("Invalid choice. Please enter a number between 1 and 5.");
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("Please enter a valid number.");
+                    scanner.nextLine();
+                }
+            }
+
             switch (choice) {
                 case 1:
                     player2.chooseCharacter(new Warrior());
@@ -106,9 +122,10 @@ public class Main {
                 case 4:
                     player2.chooseCharacter(new Troll());
                     break;
+                case 5:
+                    player2.chooseCharacter(new Dragon());
+                    break;
                 default:
-                    System.out.println("Choix invalide.");
-                    i--; // Pour que le joueur refasse un choix valide
                     break;
             }
         }
@@ -122,8 +139,8 @@ public class Main {
         player1.chooseObject(bomb);
 
         // Sélection d'objets pour Joueur 2
-        SpiritSummon fireSpirit = new SpiritSummon("Fire");
-        player2.chooseObject(fireSpirit);
+        // SpiritSummon fireSpirit = new SpiritSummon("Fire");
+        player1.chooseObject(bomb);
         player2.chooseObject(healingPotion);
 
         // Création du moteur de jeu

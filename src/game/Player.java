@@ -1,5 +1,6 @@
 package src.game;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import src.armies.Army;
@@ -16,6 +17,7 @@ public class Player {
         this.name = name;
         this.army = new Army();
         this.credits = 0;
+        this.objectsChosen = new ArrayList<GameObject>();
     }
 
     public String getName() {

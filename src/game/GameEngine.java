@@ -18,7 +18,7 @@ public class GameEngine {
     }
 
     public void startGame() {
-        System.out.println("Game started!");
+        System.out.println("Game started!\n");
 
         while (true) {
             playTurn(player1, player2);
@@ -36,50 +36,147 @@ public class GameEngine {
     }
 
     private void playTurn(Player currentPlayer, Player opponent) {
-        System.out.println(currentPlayer.getName() + "'s turn!");
+        System.out.println(currentPlayer.getName() + "'s turn!\n");
 
+        // Demander les actions pour les personnages du joueur courant
         for (Character character : currentPlayer.getArmy().getCharacters()) {
             if (character.getHp() <= 0) {
                 continue;
             }
 
-            System.out.println(character + " - Choose an action: 1. Attack  2. Defend  3. Use Object");
+            // Afficher les actions possibles pour chaque personnage
+            System.out.println(
+                    "\nChoose an action for your " + character.getName() + ":\n1. Attack\n2. Defend\n3. Use Object");
             int choice = scanner.nextInt();
 
             switch (choice) {
-                case 1 -> attack(character, opponent);
-                case 2 -> defend(character);
-                case 3 -> useObject(currentPlayer, opponent, character);
-                default -> System.out.println("Invalid choice, skipping turn...");
+                case 1:
+                    character.setAction("Attack");
+                    break;
+                case 2:
+                    character.setAction("Defend");
+                    break;
+                case 3:
+                    character.setAction("Use Object");
+                    break;
+                default:
+                    System.out.println("Invalid choice, skipping turn...");
+                    break;
             }
+        }
+
+        // Maintenant, le joueur adverse (opposant) doit aussi choisir ses actions
+        System.out.println(opponent.getName() + "'s turn!\n");
+
+        for (Character character : opponent.getArmy().getCharacters()) {
+            if (character.getHp() <= 0) {
+                continue;
+            }
+
+            // Afficher les actions possibles pour chaque personnage
+            System.out.println(
+                    "\nChoose an action for your " + character.getName() + ":\n1. Attack\n2. Defend\n3. Use Object");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    character.setAction("Attack");
+                    break;
+                case 2:
+                    character.setAction("Defend");
+                    break;
+                case 3:
+                    character.setAction("Use Object");
+                    break;
+                default:
+                    System.out.println("Invalid choice, skipping turn...");
+                    break;
+            }
+        }
+
+        // Après que les deux joueurs ont choisi les actions de leurs personnages, on
+        // passe à l'exécution des actions
+
+        // Exécuter les actions pour le joueur courant
+        for (Character character : currentPlayer.getArmy().getCharacters()) {
+            if (character.getHp() <= 0) {
+                continue;
+            }
+
+            switch (character.getAction()) {
+                case "Attack":
+                    attack(character, opponent);
+                    break;
+                case "Defend":
+                    defend(character);
+                    break;
+                case "Use Object":
+                    useObject(currentPlayer, opponent, character);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // Exécuter les actions pour l'adversaire
+        for (Character character : opponent.getArmy().getCharacters()) {
+            if (character.getHp() <= 0) {
+                continue;
+            }
+
+            switch (character.getAction()) {
+                case "Attack":
+                    attack(character, currentPlayer);
+                    break;
+                case "Defend":
+                    defend(character);
+                    break;
+                case "Use Object":
+                    useObject(opponent, currentPlayer, character);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // Vérifier si un joueur a gagné ce tour (en fonction de l'état des armées)
+        if (opponent.getArmy().isDefeated()) {
+            System.out.println(currentPlayer.getName() + " wins!");
+        } else if (currentPlayer.getArmy().isDefeated()) {
+            System.out.println(opponent.getName() + " wins!");
+        } else {
+            System.out.println("The round ended in a draw.");
         }
     }
 
     private void attack(Character attacker, Player opponent) {
         Random random = new Random();
-        
+
         Character target = opponent.getArmy().getCharacters()
                 .stream()
                 .filter(c -> c.getHp() > 0)
-                .skip(random.nextInt((int) opponent.getArmy().getCharacters().stream().filter(c -> c.getHp() > 0).count()))
+                .skip(random
+                        .nextInt((int) opponent.getArmy().getCharacters().stream().filter(c -> c.getHp() > 0).count()))
                 .findFirst()
                 .orElse(null);
-    
+
         if (target != null) {
             System.out.println(attacker.getName() + " attacks " + target.getName() + "!");
-    
+
             int damage = attacker.getAttack();
-            int defense = target.getDefense();
-    
-            int finalDamage = Math.max(damage - defense, 0);
-    
-            target.setHp(target.getHp() - finalDamage);
-    
-            System.out.println(target.getName() + " receives " + finalDamage + " damage.");
+
+            if (target.isDefending()) {
+                int finalDamage = Math.max(damage - target.getDefense(), 0);
+                System.out.println(target.getName() + " is defending! Damage reduced to " + finalDamage);
+                target.setHp(target.getHp() - finalDamage);
+            } else {
+                System.out.println(target.getName() + " receives " + damage + " damage.");
+                target.setHp(target.getHp() - damage);
+            }
+
             System.out.println(target.getName() + " now has " + target.getHp() + " HP.");
         }
     }
-    
 
     private void defend(Character character) {
         System.out.println(character.getName() + " is defending!");

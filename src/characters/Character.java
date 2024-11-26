@@ -10,6 +10,7 @@ public abstract class Character {
     private boolean defending;
     private boolean spirit;
     private int cost;
+    private String action;
 
     public Character(String name, int hp, int attack, int defense, int cost) {
         this.name = name;
@@ -19,6 +20,7 @@ public abstract class Character {
         this.defending = false;
         this.spirit = false;
         this.cost = cost;
+        this.action = "";
     }
 
     public String getName() {
@@ -59,6 +61,14 @@ public abstract class Character {
 
     public int getCost() {
         return cost;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public void useObject(GameObject object, Character target) {
