@@ -12,6 +12,11 @@ public class HealingPotion extends GameObject {
     }
 
     @Override
+    public boolean isBeneficial() {
+        return true;
+    }
+
+    @Override
     public void applyEffect(Character user, Character target) {
         System.out.println(user.getName() + " uses a Healing Potion on " + target.getName());
         target.setHp(target.getHp() + healAmount);

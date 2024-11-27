@@ -15,24 +15,33 @@ public class Army {
         this.objects = new ArrayList<>();
     }
 
-    public void addCharacter(Character character) {
-        characters.add(character);
-    }
-
-    public void addObject(GameObject object) {
-        if (objects.size() < 2) {
-            objects.add(object);
-        } else {
-            System.out.println("You can only choose 2 objects.");
-        }
-    }
-
     public List<Character> getCharacters() {
         return characters;
     }
 
     public List<GameObject> getObjects() {
         return objects;
+    }
+
+    public void addCharacter(Character character) {
+        characters.add(character);
+    }
+
+    // public void addObject(GameObject object) {
+    //     if (objects.size() < 2) {
+    //         objects.add(object);
+    //     } else {
+    //         System.out.println("You can only choose 2 objects.");
+    //     }
+    // }
+
+    public void chooseObject(GameObject object) {
+        if (objects.size() < 2) {
+            objects.add(object);
+            System.out.println("Objet ajouté à l'armée : " + object.getClass().getSimpleName());
+        } else {
+            System.out.println("L'armée a déjà 2 objets.");
+        }
     }
 
     public boolean isDefeated() {

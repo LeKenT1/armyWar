@@ -135,13 +135,13 @@ public class Main {
         Bomb bomb = new Bomb(20);
 
         System.out.println(player1.getName() + ", choisissez vos objets (maximum 2 objets) : ");
-        player1.chooseObject(healingPotion);
-        player1.chooseObject(bomb);
+        player1.getArmy().chooseObject(healingPotion);
+        player1.getArmy().chooseObject(bomb);
 
         // Sélection d'objets pour Joueur 2
         // SpiritSummon fireSpirit = new SpiritSummon("Fire");
-        player1.chooseObject(bomb);
-        player2.chooseObject(healingPotion);
+        player1.getArmy().chooseObject(bomb);
+        player2.getArmy().chooseObject(healingPotion);
 
         // Création du moteur de jeu
         GameEngine gameEngine = new GameEngine(player1, player2);

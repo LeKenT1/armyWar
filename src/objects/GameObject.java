@@ -13,5 +13,9 @@ public abstract class GameObject {
         return name;
     }
 
+    public boolean isBeneficial() {
+        return false;
+    }
+
     public abstract void applyEffect(Character user, Character target);
 }

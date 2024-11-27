@@ -3,6 +3,8 @@ package src.game;
 import src.objects.GameObject;
 import src.characters.Character;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -10,27 +12,84 @@ public class GameEngine {
     private Player player1;
     private Player player2;
     private Scanner scanner;
+    private List<String> battleLog;
+
+    // Nested class for representing attacks
+    private class Attack {
+        Character attacker;
+        Character target;
+
+        Attack(Character attacker, Character target) {
+            this.attacker = attacker;
+            this.target = target;
+        }
+    }
 
     public GameEngine(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
         this.scanner = new Scanner(System.in);
+        this.battleLog = new ArrayList<>();
     }
 
     public void startGame() {
         System.out.println("Game started!\n");
+        battleLog.clear();
 
         while (true) {
+            if (isArmyFullyDead(player1) || isArmyFullyDead(player2)) {
+                if (isArmyFullyDead(player1)) {
+                    System.out.println(player2.getName() + " wins!");
+                } else {
+                    System.out.println(player1.getName() + " wins!");
+                }
+                break;
+            }
+
             playTurn(player1, player2);
-            if (player2.getArmy().isDefeated()) {
-                System.out.println(player1.getName() + " wins!");
+            displayBattleLog();
+            resetDefenseStatus(player1);
+            resetDefenseStatus(player2);
+
+            if (isArmyFullyDead(player1) || isArmyFullyDead(player2)) {
+                if (isArmyFullyDead(player1)) {
+                    System.out.println(player2.getName() + " wins!");
+                } else {
+                    System.out.println(player1.getName() + " wins!");
+                }
                 break;
             }
 
             playTurn(player2, player1);
-            if (player1.getArmy().isDefeated()) {
-                System.out.println(player2.getName() + " wins!");
-                break;
+            displayBattleLog();
+            resetDefenseStatus(player1);
+            resetDefenseStatus(player2);
+        }
+    }
+
+    private boolean isArmyFullyDead(Player player) {
+        return player.getArmy().getCharacters().stream().allMatch(character -> character.getHp() <= 0);
+    }
+
+    private void displayBattleLog() {
+        System.out.println("\n--- Battle Log ---");
+        for (String logEntry : battleLog) {
+            System.out.println(logEntry);
+        }
+        System.out.println("\n--- Current Army Status ---");
+        displayArmyStatus(player1);
+        displayArmyStatus(player2);
+        System.out.println("--------------------\n");
+        battleLog.clear();
+    }
+
+    private void displayArmyStatus(Player player) {
+        System.out.println(player.getName() + "'s Army:");
+        for (Character character : player.getArmy().getCharacters()) {
+            if (character.getHp() <= 0) {
+                System.out.println(character.getName() + ": DEAD");
+            } else {
+                System.out.println(character.getName() + ": " + character.getHp() + " HP");
             }
         }
     }
@@ -38,15 +97,18 @@ public class GameEngine {
     private void playTurn(Player currentPlayer, Player opponent) {
         System.out.println(currentPlayer.getName() + "'s turn!\n");
 
-        // Demander les actions pour les personnages du joueur courant
         for (Character character : currentPlayer.getArmy().getCharacters()) {
             if (character.getHp() <= 0) {
                 continue;
             }
 
-            // Afficher les actions possibles pour chaque personnage
             System.out.println(
-                    "\nChoose an action for your " + character.getName() + ":\n1. Attack\n2. Defend\n3. Use Object");
+                    "\nChoose an action for your " + character.getName() + ":\n1. Attack\n2. Defend");
+
+            if (!currentPlayer.getArmy().getObjects().isEmpty()) {
+                System.out.println("3. Use Object");
+            }
+
             int choice = scanner.nextInt();
 
             switch (choice) {
@@ -57,7 +119,11 @@ public class GameEngine {
                     character.setAction("Defend");
                     break;
                 case 3:
-                    character.setAction("Use Object");
+                    if (!currentPlayer.getArmy().getObjects().isEmpty()) {
+                        character.setAction("Use Object");
+                    } else {
+                        System.out.println("Invalid choice, skipping turn...");
+                    }
                     break;
                 default:
                     System.out.println("Invalid choice, skipping turn...");
@@ -65,7 +131,6 @@ public class GameEngine {
             }
         }
 
-        // Maintenant, le joueur adverse (opposant) doit aussi choisir ses actions
         System.out.println(opponent.getName() + "'s turn!\n");
 
         for (Character character : opponent.getArmy().getCharacters()) {
@@ -73,9 +138,13 @@ public class GameEngine {
                 continue;
             }
 
-            // Afficher les actions possibles pour chaque personnage
             System.out.println(
-                    "\nChoose an action for your " + character.getName() + ":\n1. Attack\n2. Defend\n3. Use Object");
+                    "\nChoose an action for your " + character.getName() + ":\n1. Attack\n2. Defend");
+
+            if (!currentPlayer.getArmy().getObjects().isEmpty()) {
+                System.out.println("3. Use Object");
+            }
+
             int choice = scanner.nextInt();
 
             switch (choice) {
@@ -94,121 +163,122 @@ public class GameEngine {
             }
         }
 
-        // Après que les deux joueurs ont choisi les actions de leurs personnages, on
-        // passe à l'exécution des actions
+        executeActions(currentPlayer, opponent);
+    }
 
-        // Exécuter les actions pour le joueur courant
+    private void executeActions(Player currentPlayer, Player opponent) {
+        // Store all attacks to execute them simultaneously
+        List<Attack> attacks = new ArrayList<>();
+
+        // Collect attacks for the current player's characters
         for (Character character : currentPlayer.getArmy().getCharacters()) {
-            if (character.getHp() <= 0) {
-                continue;
+            if (character.getAction().equals("Attack")) {
+                Character target = selectRandomTarget(opponent);
+                if (target != null) {
+                    attacks.add(new Attack(character, target));
+                }
             }
+        }
 
+        // Collect attacks for the opponent's characters
+        for (Character character : opponent.getArmy().getCharacters()) {
+            if (character.getAction().equals("Attack")) {
+                Character target = selectRandomTarget(currentPlayer);
+                if (target != null) {
+                    attacks.add(new Attack(character, target));
+                }
+            }
+        }
+
+        // Execute all attacks simultaneously
+        for (Attack attack : attacks) {
+            executeSimultaneousAttack(attack);
+        }
+
+        // Handle other actions
+        for (Character character : currentPlayer.getArmy().getCharacters()) {
             switch (character.getAction()) {
-                case "Attack":
-                    attack(character, opponent);
-                    break;
                 case "Defend":
                     defend(character);
                     break;
                 case "Use Object":
                     useObject(currentPlayer, opponent, character);
                     break;
-                default:
-                    break;
             }
         }
 
-        // Exécuter les actions pour l'adversaire
         for (Character character : opponent.getArmy().getCharacters()) {
-            if (character.getHp() <= 0) {
-                continue;
-            }
-
             switch (character.getAction()) {
-                case "Attack":
-                    attack(character, currentPlayer);
-                    break;
                 case "Defend":
                     defend(character);
                     break;
                 case "Use Object":
                     useObject(opponent, currentPlayer, character);
                     break;
-                default:
-                    break;
             }
-        }
-
-        // Vérifier si un joueur a gagné ce tour (en fonction de l'état des armées)
-        if (opponent.getArmy().isDefeated()) {
-            System.out.println(currentPlayer.getName() + " wins!");
-        } else if (currentPlayer.getArmy().isDefeated()) {
-            System.out.println(opponent.getName() + " wins!");
-        } else {
-            System.out.println("The round ended in a draw.");
         }
     }
 
-    private void attack(Character attacker, Player opponent) {
-        Random random = new Random();
-
-        Character target = opponent.getArmy().getCharacters()
+    // Helper method to select a random target
+    private Character selectRandomTarget(Player opponent) {
+        return opponent.getArmy().getCharacters()
                 .stream()
                 .filter(c -> c.getHp() > 0)
-                .skip(random
-                        .nextInt((int) opponent.getArmy().getCharacters().stream().filter(c -> c.getHp() > 0).count()))
-                .findFirst()
+                .findAny()
                 .orElse(null);
+    }
 
-        if (target != null) {
-            System.out.println(attacker.getName() + " attacks " + target.getName() + "!");
+    // Method to execute simultaneous attacks
+    private void executeSimultaneousAttack(Attack attack) {
+        String attackLog = attack.attacker.getName() + " attacked " + attack.target.getName() + "!";
+        battleLog.add(attackLog);
 
-            int damage = attacker.getAttack();
+        int damage = attack.attacker.getAttack();
 
-            if (target.isDefending()) {
-                int finalDamage = Math.max(damage - target.getDefense(), 0);
-                System.out.println(target.getName() + " is defending! Damage reduced to " + finalDamage);
-                target.setHp(target.getHp() - finalDamage);
-            } else {
-                System.out.println(target.getName() + " receives " + damage + " damage.");
-                target.setHp(target.getHp() - damage);
-            }
-
-            System.out.println(target.getName() + " now has " + target.getHp() + " HP.");
+        if (attack.target.isDefending()) {
+            int finalDamage = Math.max(damage - attack.target.getDefense(), 0);
+            battleLog.add(attack.target.getName() + " is defending! Damage reduced to " + finalDamage);
+            attack.target.setHp(attack.target.getHp() - finalDamage);
+        } else {
+            battleLog.add(attack.target.getName() + " receives " + damage + " damage.");
+            attack.target.setHp(attack.target.getHp() - damage);
         }
     }
 
     private void defend(Character character) {
-        System.out.println(character.getName() + " is defending!");
+        battleLog.add(character.getName() + " is defending!");
         character.setDefending(true);
     }
 
     private void useObject(Player currentPlayer, Player opponent, Character user) {
         if (currentPlayer.getArmy().getObjects().isEmpty()) {
-            System.out.println("No objects available.");
+            battleLog.add("No objects available.");
             return;
         }
 
-        System.out.println("Choose an object to use:");
-        for (int i = 0; i < currentPlayer.getArmy().getObjects().size(); i++) {
-            System.out.println((i + 1) + ". " + currentPlayer.getArmy().getObjects().get(i).getName());
+        Random random = new Random();
+        GameObject object = currentPlayer.getArmy().getObjects()
+                .get(random.nextInt(currentPlayer.getArmy().getObjects().size()));
+
+        boolean isBeneficial = object.isBeneficial();
+        List<Character> validTargets = isBeneficial
+                ? currentPlayer.getArmy().getCharacters().stream().filter(c -> c.getHp() > 0).toList()
+                : opponent.getArmy().getCharacters().stream().filter(c -> c.getHp() > 0).toList();
+
+        if (validTargets.isEmpty()) {
+            battleLog.add("No valid targets available for the object.");
+            return;
         }
 
-        int choice = scanner.nextInt() - 1;
+        Character target = validTargets.get(random.nextInt(validTargets.size()));
 
-        if (choice >= 0 && choice < currentPlayer.getArmy().getObjects().size()) {
-            GameObject object = currentPlayer.getArmy().getObjects().get(choice);
+        battleLog.add(user.getName() + " uses " + object.getName() + " on " + target.getName());
+        object.applyEffect(user, target);
+    }
 
-            System.out.println("Choose a target:");
-            for (int i = 0; i < opponent.getArmy().getCharacters().size(); i++) {
-                System.out.println((i + 1) + ". " + opponent.getArmy().getCharacters().get(i).getName());
-            }
-
-            int targetChoice = scanner.nextInt() - 1;
-
-            if (targetChoice >= 0 && targetChoice < opponent.getArmy().getCharacters().size()) {
-                object.applyEffect(user, opponent.getArmy().getCharacters().get(targetChoice));
-            }
+    private void resetDefenseStatus(Player player) {
+        for (Character character : player.getArmy().getCharacters()) {
+            character.setDefending(false);
         }
     }
 }

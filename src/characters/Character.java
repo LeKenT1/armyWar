@@ -82,3 +82,15 @@ public abstract class Character {
                ", Defending: " + defending + ", Spirit: " + spirit + ", Cost: " + cost + "]";
     }
 }
+
+class CharacterTest {
+    public static void main(String[] args) {
+        Character testChar = new Character("TestChar", 100, 10, 5, 5) {};
+        assert testChar.getName().equals("TestChar") : "Name not set correctly";
+        assert testChar.getHp() == 100 : "HP not set correctly";
+        assert testChar.getAttack() == 10 : "Attack not set correctly";
+        assert testChar.getDefense() == 5 : "Defense not set correctly";
+        assert testChar.getCost() == 5 : "Cost not set correctly";
+        System.out.println("All tests passed!");
+    }
+}

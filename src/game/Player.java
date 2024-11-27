@@ -17,7 +17,6 @@ public class Player {
         this.name = name;
         this.army = new Army();
         this.credits = 0;
-        this.objectsChosen = new ArrayList<GameObject>();
     }
 
     public String getName() {
@@ -30,10 +29,6 @@ public class Player {
 
     public int getCredits() {
         return credits;
-    }
-
-    public List<GameObject> getObjectsChosen() {
-        return objectsChosen;
     }
 
     public void addCredits(int amount) {
@@ -63,14 +58,4 @@ public class Player {
             System.out.println(getName() + " n'a pas assez de crédits pour choisir " + character.getName());
         }
     }
-    
-    public void chooseObject(GameObject object) {
-        if (objectsChosen.size() < 2) {
-            objectsChosen.add(object);
-            System.out.println(getName() + " a choisi " + object.getClass().getSimpleName());
-        } else {
-            System.out.println(getName() + " a déjà choisi 2 objets, impossible d'en choisir un autre.");
-        }
-    }
-
 }
