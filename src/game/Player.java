@@ -35,7 +35,7 @@ public class Player {
         if (amount > 0) {
             this.credits += amount;
         } else {
-            System.out.println("Le nombre de crédits doit être positif !");
+            System.out.println("The number of credits must be positive!");
         }
     }
 
@@ -44,7 +44,7 @@ public class Player {
             credits -= amount;
             return true;
         } else {
-            System.out.println("Crédits insuffisants !");
+            System.out.println("Insufficient credits!");
             return false;
         }
     }
@@ -53,9 +53,30 @@ public class Player {
         int cost = character.getCost();
         if (spendCredits(cost)) {
             army.addCharacter(character);
-            System.out.println(getName() + " a choisi " + character.getName() + " pour " + cost + " crédits.");
+            System.out.println(getName() + " has chosen " + character.getName() + " for " + cost + " credits.");
         } else {
-            System.out.println(getName() + " n'a pas assez de crédits pour choisir " + character.getName());
+            System.out.println(getName() + " doesn't have enough credits to choose " + character.getName());
         }
+    }
+}
+
+class PlayerTest {
+    public static void main(String[] args) {
+        Player player = new Player("TestPlayer");
+        assert player.getName().equals("TestPlayer") : "Name not set correctly";
+        assert player.getCredits() == 0 : "Initial credits should be 0";
+        
+        player.addCredits(100);
+        assert player.getCredits() == 100 : "Credits not added correctly";
+        
+        player.spendCredits(50);
+        assert player.getCredits() == 50 : "Credits not spent correctly";
+        
+        Character testChar = new Character("TestChar", 100, 10, 5, 30) {};
+        player.chooseCharacter(testChar);
+        assert player.getArmy().getCharacters().size() == 1 : "Character not added to army";
+        assert player.getCredits() == 20 : "Credits not deducted after choosing character";
+        
+        System.out.println("All Player tests passed!");
     }
 }

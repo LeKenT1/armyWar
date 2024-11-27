@@ -52,7 +52,6 @@ public class Main {
 
         System.out.println("------------------------------------------------------");
 
-        // Sélection des personnages pour Joueur 1
         System.out.println(player1.getName() + ", choose your characters : ");
         while (player1.getCredits() > 3) {
             System.out.println("You have " + player1.getCredits() + " credits left, choose a character (1-5): ");
@@ -91,7 +90,6 @@ public class Main {
             }
         }
 
-        // Sélection des personnages pour Joueur 2
         System.out.println(player2.getName() + ", choose your characters : ");
         while (player2.getCredits() > 3) {
             System.out.println("You have " + player2.getCredits() + " credits left, choose a character (1-5): ");
@@ -130,23 +128,52 @@ public class Main {
             }
         }
 
-        // Sélection d'objets pour Joueur 1
         HealingPotion healingPotion = new HealingPotion(20);
         Bomb bomb = new Bomb(20);
 
-        System.out.println(player1.getName() + ", choisissez vos objets (maximum 2 objets) : ");
+        System.out.println(player1.getName() + ", choose your objects (maximum 2 objects) : ");
         player1.getArmy().chooseObject(healingPotion);
         player1.getArmy().chooseObject(bomb);
 
-        // Sélection d'objets pour Joueur 2
-        // SpiritSummon fireSpirit = new SpiritSummon("Fire");
         player1.getArmy().chooseObject(bomb);
         player2.getArmy().chooseObject(healingPotion);
 
-        // Création du moteur de jeu
         GameEngine gameEngine = new GameEngine(player1, player2);
 
-        // Démarrer le combat
         gameEngine.startGame();
     }
 }
+
+class MainTest {
+    public static void main(String[] args) {
+        Player testPlayer1 = new Player("TestPlayer1");
+        Player testPlayer2 = new Player("TestPlayer2");
+        
+        testPlayer1.addCredits(20);
+        testPlayer2.addCredits(20);
+        
+        assert testPlayer1.getCredits() == 20 : "Credits not added correctly for player 1";
+        assert testPlayer2.getCredits() == 20 : "Credits not added correctly for player 2";
+        
+        testPlayer1.chooseCharacter(new Warrior());
+        testPlayer2.chooseCharacter(new Archer());
+        
+        assert testPlayer1.getArmy().getCharacters().size() == 1 : "Character not added to player 1's army";
+        assert testPlayer2.getArmy().getCharacters().size() == 1 : "Character not added to player 2's army";
+        
+        HealingPotion healingPotion = new HealingPotion(20);
+        Bomb bomb = new Bomb(20);
+        
+        testPlayer1.getArmy().chooseObject(healingPotion);
+        testPlayer2.getArmy().chooseObject(bomb);
+        
+        assert testPlayer1.getArmy().getObjects().size() == 1 : "Object not added to player 1's army";
+        assert testPlayer2.getArmy().getObjects().size() == 1 : "Object not added to player 2's army";
+        
+        GameEngine testGameEngine = new GameEngine(testPlayer1, testPlayer2);
+        assert testGameEngine != null : "GameEngine not initialized correctly";
+        
+        System.out.println("All Main tests passed!");
+    }
+}
+

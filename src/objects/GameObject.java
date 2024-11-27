@@ -19,3 +19,17 @@ public abstract class GameObject {
 
     public abstract void applyEffect(Character user, Character target);
 }
+
+class GameObjectTest {
+    public static void main(String[] args) {
+        GameObject testObject = new GameObject("TestObject") {
+            @Override
+            public void applyEffect(Character user, Character target) {}
+        };
+        
+        assert testObject.getName().equals("TestObject") : "Name not set correctly";
+        assert !testObject.isBeneficial() : "isBeneficial should default to false";
+        
+        System.out.println("All GameObject tests passed!");
+    }
+}

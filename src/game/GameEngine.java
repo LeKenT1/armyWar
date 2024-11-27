@@ -14,7 +14,6 @@ public class GameEngine {
     private Scanner scanner;
     private List<String> battleLog;
 
-    // Nested class for representing attacks
     private class Attack {
         Character attacker;
         Character target;
@@ -167,59 +166,49 @@ public class GameEngine {
     }
 
     private void executeActions(Player currentPlayer, Player opponent) {
-        // Store all attacks to execute them simultaneously
         List<Attack> attacks = new ArrayList<>();
-
-        // Collect attacks for the current player's characters
+    
         for (Character character : currentPlayer.getArmy().getCharacters()) {
-            if (character.getAction().equals("Attack")) {
+            if (character.getHp() > 0 && character.getAction().equals("Attack")) {
                 Character target = selectRandomTarget(opponent);
                 if (target != null) {
                     attacks.add(new Attack(character, target));
                 }
             }
         }
-
-        // Collect attacks for the opponent's characters
+    
         for (Character character : opponent.getArmy().getCharacters()) {
-            if (character.getAction().equals("Attack")) {
+            if (character.getHp() > 0 && character.getAction().equals("Attack")) {
                 Character target = selectRandomTarget(currentPlayer);
                 if (target != null) {
                     attacks.add(new Attack(character, target));
                 }
             }
         }
-
-        // Execute all attacks simultaneously
+    
         for (Attack attack : attacks) {
             executeSimultaneousAttack(attack);
         }
+    
+        handleOtherActions(currentPlayer, opponent);
+        handleOtherActions(opponent, currentPlayer);
+    }
 
-        // Handle other actions
-        for (Character character : currentPlayer.getArmy().getCharacters()) {
-            switch (character.getAction()) {
-                case "Defend":
-                    defend(character);
-                    break;
-                case "Use Object":
-                    useObject(currentPlayer, opponent, character);
-                    break;
-            }
-        }
-
-        for (Character character : opponent.getArmy().getCharacters()) {
-            switch (character.getAction()) {
-                case "Defend":
-                    defend(character);
-                    break;
-                case "Use Object":
-                    useObject(opponent, currentPlayer, character);
-                    break;
+    private void handleOtherActions(Player actingPlayer, Player otherPlayer) {
+        for (Character character : actingPlayer.getArmy().getCharacters()) {
+            if (character.getHp() > 0) {
+                switch (character.getAction()) {
+                    case "Defend":
+                        defend(character);
+                        break;
+                    case "Use Object":
+                        useObject(actingPlayer, otherPlayer, character);
+                        break;
+                }
             }
         }
     }
 
-    // Helper method to select a random target
     private Character selectRandomTarget(Player opponent) {
         return opponent.getArmy().getCharacters()
                 .stream()
@@ -228,7 +217,6 @@ public class GameEngine {
                 .orElse(null);
     }
 
-    // Method to execute simultaneous attacks
     private void executeSimultaneousAttack(Attack attack) {
         String attackLog = attack.attacker.getName() + " attacked " + attack.target.getName() + "!";
         battleLog.add(attackLog);
@@ -280,5 +268,15 @@ public class GameEngine {
         for (Character character : player.getArmy().getCharacters()) {
             character.setDefending(false);
         }
+    }
+}
+
+class GameEngineTest {
+    public static void main(String[] args) {
+        Player player1 = new Player("Player 1");
+        Player player2 = new Player("Player 2");
+        GameEngine engine = new GameEngine(player1, player2);
+        assert engine != null : "GameEngine not initialized correctly";
+        System.out.println("GameEngine test passed!");
     }
 }

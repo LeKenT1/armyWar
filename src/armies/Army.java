@@ -27,24 +27,43 @@ public class Army {
         characters.add(character);
     }
 
-    // public void addObject(GameObject object) {
-    //     if (objects.size() < 2) {
-    //         objects.add(object);
-    //     } else {
-    //         System.out.println("You can only choose 2 objects.");
-    //     }
-    // }
-
     public void chooseObject(GameObject object) {
         if (objects.size() < 2) {
             objects.add(object);
-            System.out.println("Objet ajouté à l'armée : " + object.getClass().getSimpleName());
+            System.out.println("Object added to the army: " + object.getClass().getSimpleName());
         } else {
-            System.out.println("L'armée a déjà 2 objets.");
+            System.out.println("The army already has 2 objects.");
         }
     }
 
     public boolean isDefeated() {
         return characters.stream().allMatch(c -> c.getHp() <= 0);
+    }
+}
+
+class ArmyTest {
+    public static void main(String[] args) {
+        Army army = new Army();
+        Character testCharacter = new Character("Test", 100, 10, 10, 5) {};
+        army.addCharacter(testCharacter);
+        assert army.getCharacters().size() == 1 : "Character not added to army";
+        
+        GameObject testObject = new GameObject("TestObject") {
+            @Override
+            public void applyEffect(Character user, Character target) {}
+            
+            @Override
+            public boolean isBeneficial() {
+                return true;
+            }
+        };
+        army.chooseObject(testObject);
+        assert army.getObjects().size() == 1 : "Object not added to army";
+        
+        army.chooseObject(testObject);
+        army.chooseObject(testObject);
+        assert army.getObjects().size() == 2 : "Army should have max 2 objects";
+        
+        System.out.println("All tests passed!");
     }
 }
