@@ -3,6 +3,6 @@ Pour lancer le projet :
       java -version
       javac -version
   2. Se mettre à la racine du projet
-  3. Lancer la commande : javac -d bin src\*.java
+  3. Lancer la commande : javac -d bin src/*.java
   4. puis : java -cp bin src.Main
 
