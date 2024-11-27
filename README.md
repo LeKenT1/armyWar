@@ -1,4 +1,4 @@
-javac -d bin src\*.java
+'javac -d bin src\*.java'
 
 
 java -cp bin src.Main
